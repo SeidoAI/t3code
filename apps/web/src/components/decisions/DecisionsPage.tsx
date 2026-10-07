@@ -11,6 +11,9 @@ import { useEnvironmentQuery } from "../../state/query";
 import { useAtomCommand } from "../../state/use-atom-command";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { SidebarInset } from "../ui/sidebar";
+import { WorkspacePageHeader } from "../WorkspacePageHeader";
+import { isElectron } from "../../env";
 import { Textarea } from "../ui/textarea";
 import { age, inTab, needsFounder, sortDecisions, type DecisionTab } from "./decisionView";
 
@@ -70,24 +73,23 @@ export function DecisionsPage() {
   );
   const selected = all.find((d) => d.id === id);
   return (
-    <main className="flex h-full min-h-0 flex-col bg-background text-foreground">
-      <header className="border-b px-5 py-5 md:px-8">
-        <div className="flex items-center justify-between gap-4">
+    <SidebarInset className="h-dvh min-h-0 overflow-hidden">
+      <WorkspacePageHeader electron={isElectron}>
+        <div className="flex w-full items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-sm font-medium">
               Decisions{" "}
               <span className="ml-2 text-sm font-normal text-muted-foreground">
                 {all.filter((d) => needsFounder(d)).length} need you
               </span>
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Make the call. Get the work moving.
-            </p>
           </div>
           <Button variant="outline" onClick={query.refresh}>
             Refresh
           </Button>
         </div>
+      </WorkspacePageHeader>
+      <div className="border-b px-5 pb-3">
         {supported.length > 1 && (
           <label className="mt-3 block text-sm">
             Environment{" "}
@@ -107,7 +109,7 @@ export function DecisionsPage() {
             </select>
           </label>
         )}
-        <nav className="mt-5 flex flex-wrap gap-2" aria-label="Decision views">
+        <nav className="mt-2 flex flex-wrap gap-2" aria-label="Decision views">
           {tabs.map(([value, label]) => (
             <Button
               key={value}
@@ -122,7 +124,7 @@ export function DecisionsPage() {
             </Button>
           ))}
         </nav>
-      </header>
+      </div>
       {!environmentId ? (
         <div className="m-8 rounded-lg border p-6">
           <h2 className="font-medium">Decisions unavailable</h2>
@@ -245,7 +247,7 @@ export function DecisionsPage() {
           </div>
         </>
       )}
-    </main>
+    </SidebarInset>
   );
 }
 function DecisionPanel({

@@ -1,6 +1,6 @@
 # Operating the Seido Decisions fork
 
-Base: upstream stable `v0.0.45` (`6c8fed35dded9ff71c5b46807125457acbb76be6`). Fork identity: `0.0.45-seido.1`. Web is the new surface; upstream desktop/mobile remain compatible session clients but do not gain the Decisions page automatically.
+Base: upstream stable `v0.0.45` (`6c8fed35dded9ff71c5b46807125457acbb76be6`). Fork identity: `0.0.45-seido.2`. Web is the new surface; upstream desktop/mobile remain compatible session clients but do not gain the Decisions page automatically.
 
 Decision logic is in `packages/seido-decisions`. The integration surface is contracts/client runtime, CLI registration, three authenticated RPC methods, one server service, the Decisions route and sidebar entry. `userdata/decisions.sqlite` owns its own `user_version`; upstream session migrations are unchanged. Node 24's SQLite implementation is used. Answer and outbox insertion share a transaction.
 
