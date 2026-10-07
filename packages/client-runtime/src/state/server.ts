@@ -1076,6 +1076,20 @@ export function createServerEnvironmentAtoms<R, E>(
     }),
     // A cold transcript scan is measured in seconds, so keep the result around
     // long enough that switching windows or re-rendering does not rescan.
+    decisions: createEnvironmentRpcQueryAtomFamily(runtime, {
+      label: "seido:decisions",
+      tag: WS_METHODS.decisionsList,
+      staleTimeMs: 5_000,
+    }),
+    decisionDetail: createEnvironmentRpcQueryAtomFamily(runtime, {
+      label: "seido:decision-detail",
+      tag: WS_METHODS.decisionsDetail,
+      staleTimeMs: 5_000,
+    }),
+    respondToDecision: createEnvironmentRpcCommand(runtime, {
+      label: "seido:decision-response",
+      tag: WS_METHODS.decisionsRespond,
+    }),
     usageSummary: createEnvironmentRpcQueryAtomFamily(runtime, {
       label: "environment-data:server:usage-summary",
       tag: WS_METHODS.serverGetUsageSummary,

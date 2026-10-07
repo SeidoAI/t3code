@@ -352,6 +352,11 @@ const runUpdate = Effect.fn("cli.update.run")(function* (input: {
   const service = yield* BootService.BootService;
 
   const currentVersion = packageJson.version;
+  if (currentVersion.includes("-seido."))
+    return yield* new CliUpdateError({
+      reason:
+        "This Seido fork is updated from its pinned source release. Use the Seido deployment procedure; the upstream updater would remove Decisions.",
+    });
   const channel = input.channel ?? cliReleaseChannelOf(currentVersion);
   if (input.requestedVersion !== undefined && !isExactServiceVersion(input.requestedVersion)) {
     return yield* new CliUpdateError({

@@ -192,10 +192,12 @@ export const make = Effect.gen(function* () {
   const label = yield* resolveServerEnvironmentLabel({ cwdBaseName });
   const machine = yield* detectServerEnvironmentMachineKind();
   const launcher = yield* resolveServiceLauncherMode();
-  const serverSelfUpdate = resolveServerSelfUpdateCapability({
-    desktopManaged: serverConfig.mode === "desktop",
-    launcherManaged: launcher.managed,
-  });
+  const serverSelfUpdate = packageJson.version.includes("-seido.")
+    ? null
+    : resolveServerSelfUpdateCapability({
+        desktopManaged: serverConfig.mode === "desktop",
+        launcherManaged: launcher.managed,
+      });
   // Static is correct: the control fd is known at bootstrap, and the desktop
   // app and its bundled server ship in one artifact, so a present fd means
   // the app speaks the requestDesktopUpdate protocol. WSL backends never get
@@ -220,6 +222,7 @@ export const make = Effect.gen(function* () {
       questionAttachments: true,
       fileAttachments: { maxUploadBytes: PROVIDER_SEND_TURN_MAX_FILE_BYTES },
       pullRequests: true,
+      seidoDecisions: true,
       inlineMessageContext: true,
       requiredWorktreeBootstrap: true,
       threadSettlement: true,

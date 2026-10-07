@@ -1,3 +1,4 @@
+import * as Decisions from "./decisions/Decisions.ts";
 import {
   sameUsageLimitCommandCoverage,
   withUsageLimitsCommands,
@@ -673,6 +674,7 @@ const makeWsRpcLayer = (
       const hostResources = yield* HostResources.HostResources;
       const processResourceMonitor = yield* ProcessResourceMonitor.ProcessResourceMonitor;
       const resourceTelemetry = yield* ResourceTelemetry.ResourceTelemetry;
+      const decisions = yield* Decisions.Decisions;
       const usage = yield* UsageService.UsageService;
       const relayClient = yield* RelayClient.RelayClient;
       const authorizationError = (requiredScope: AuthEnvironmentScope) =>
@@ -2137,6 +2139,12 @@ const makeWsRpcLayer = (
           .pipe(Effect.ignoreCause({ log: true }), Effect.forkDetach, Effect.asVoid);
 
       return WsRpcGroup.of({
+        [WS_METHODS.decisionsList]: () =>
+          observeRpcEffect(WS_METHODS.decisionsList, decisions.list),
+        [WS_METHODS.decisionsDetail]: (input) =>
+          observeRpcEffect(WS_METHODS.decisionsDetail, decisions.detail(input.id)),
+        [WS_METHODS.decisionsRespond]: (input) =>
+          observeRpcEffect(WS_METHODS.decisionsRespond, decisions.respond(input)),
         [ORCHESTRATION_WS_METHODS.dispatchCommand]: (command) =>
           observeRpcEffect(
             ORCHESTRATION_WS_METHODS.dispatchCommand,

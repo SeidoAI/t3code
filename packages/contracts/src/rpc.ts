@@ -1,3 +1,4 @@
+import { Decision, DecisionDetail, DecisionResponse, DecisionError } from "./decisions.ts";
 import {
   ChatGptReconnectProfileInput,
   ChatGptReconnectProfile,
@@ -287,6 +288,9 @@ import {
 import { VcsError } from "./vcs.ts";
 
 export const WS_METHODS = {
+  decisionsList: "seido.decisions.list",
+  decisionsDetail: "seido.decisions.detail",
+  decisionsRespond: "seido.decisions.respond",
   // Project registry methods
   projectsList: "projects.list",
   projectsAdd: "projects.add",
@@ -1449,7 +1453,25 @@ const WsSubscribeResourceTelemetryRpc = Rpc.make(WS_METHODS.subscribeResourceTel
   stream: true,
 });
 
+const DecisionsListRpc = Rpc.make(WS_METHODS.decisionsList, {
+  payload: Schema.Struct({}),
+  success: Schema.Array(Decision),
+  error: Schema.Union([DecisionError, EnvironmentAuthorizationError]),
+});
+const DecisionsDetailRpc = Rpc.make(WS_METHODS.decisionsDetail, {
+  payload: Schema.Struct({ id: Schema.String }),
+  success: DecisionDetail,
+  error: Schema.Union([DecisionError, EnvironmentAuthorizationError]),
+});
+const DecisionsRespondRpc = Rpc.make(WS_METHODS.decisionsRespond, {
+  payload: DecisionResponse,
+  success: Decision,
+  error: Schema.Union([DecisionError, EnvironmentAuthorizationError]),
+});
 export const WsRpcGroup = RpcGroup.make(
+  DecisionsListRpc,
+  DecisionsDetailRpc,
+  DecisionsRespondRpc,
   WsServerProbeRpc,
   WsServerGetConfigRpc,
   WsServerRefreshProvidersRpc,

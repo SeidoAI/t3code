@@ -1,4 +1,6 @@
-import { ArrowLeftIcon, ChartNoAxesColumnIcon, SettingsIcon } from "lucide-react";
+import { useDecisionQueue } from "../../state/decisions";
+import { needsFounder } from "../decisions/decisionView";
+import { ArrowLeftIcon, ChartNoAxesColumnIcon, SettingsIcon, CircleHelpIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { memo, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
@@ -134,6 +136,11 @@ export const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
     select: (location) => isSidebarUtilityPage(location.pathname),
   });
   const { environments } = useEnvironments();
+  const decisionsEnv = environments.find(
+    (e) => e.serverConfig?.environment.capabilities.seidoDecisions,
+  );
+  const decisions = useDecisionQueue(decisionsEnv?.environmentId ?? null, 30000);
+  const decisionCount = (decisions.data ?? []).filter((d) => needsFounder(d)).length;
   // The page reads every connected server, so one of them offering pull requests is enough for
   // the link to lead somewhere.
   const pullRequestsSupported = environments.some(
@@ -191,6 +198,23 @@ export const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
               onClick={handlePullRequestsClick}
             />
           ) : null}
+          <SidebarUtilityItem
+            icon={
+              <span className="relative">
+                <CircleHelpIcon className="size-4" />
+                {decisionCount > 0 && (
+                  <span className="absolute -right-2 -top-2 rounded-full bg-primary px-1 text-[9px] text-primary-foreground">
+                    {decisionCount}
+                  </span>
+                )}
+              </span>
+            }
+            label={`Decisions${decisionCount ? ` (${decisionCount})` : ""}`}
+            onClick={() => {
+              closeMobileSidebar();
+              void navigate({ to: "/decisions", search: { id: undefined } });
+            }}
+          />
           <SidebarUtilityItem
             icon={<ChartNoAxesColumnIcon />}
             label="Usage"

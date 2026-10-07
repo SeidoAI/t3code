@@ -1,0 +1,35 @@
+name: Seido Decisions
+on:
+  push:
+    branches: [seido/decisions]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: seido-decisions-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npx --yes pnpm@11.10.0 install --frozen-lockfile --filter @t3tools/oxlint-plugin-t3code... --filter @t3tools/scripts... --filter t3... --filter @t3tools/web... --filter @t3tools/monorepo
+      - name: Decision lifecycle
+        run: node --test packages/seido-decisions/src/store.test.ts
+      - name: Typecheck changed surfaces
+        run: |
+          node node_modules/typescript/bin/tsc --noEmit -p packages/seido-decisions/tsconfig.json
+          node node_modules/typescript/bin/tsc --noEmit -p apps/server/tsconfig.json
+          node node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json
+      - name: Lint decision implementation
+        run: node_modules/.bin/vp lint packages/seido-decisions/src apps/server/src/cli/decision.ts apps/server/src/decisions apps/web/src/components/decisions apps/web/src/state/decisions.ts packages/contracts/src/decisions.ts
+      - name: Build server
+        working-directory: apps/server
+        run: ../../node_modules/.bin/vp pack
+      - name: Build web
+        working-directory: apps/web
+        run: ../../node_modules/.bin/vp build
